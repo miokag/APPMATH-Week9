@@ -10,6 +10,7 @@ public class CylinderGenerator : MonoBehaviour
     public float height;
     public int segments = 10;
     public float focalLength;
+    public Vector3 rotation = Vector3.zero;
 
     private void OnPostRender()
     {
@@ -43,6 +44,13 @@ public class CylinderGenerator : MonoBehaviour
             topCircle[i] = new Vector3(center.x + radius * Mathf.Cos(angle), center.y + radius * Mathf.Sin(angle), center.z + height);
         }
 
+        Quaternion rotationQuat = Quaternion.Euler(rotation);
+        for (int i = 0; i < segments; i++)
+        {
+            bottomCircle[i] = RotatePointAroundPivot(bottomCircle[i], center, rotationQuat);
+            topCircle[i] = RotatePointAroundPivot(topCircle[i], center, rotationQuat);
+        }
+
         for (int i = 0; i < segments; i++)
         {
             DrawLine(bottomCircle[i], bottomCircle[(i + 1) % segments]);
@@ -64,5 +72,12 @@ public class CylinderGenerator : MonoBehaviour
 
         GL.Vertex3(scaledStart.x, scaledStart.y, 0);
         GL.Vertex3(scaledEnd.x, scaledEnd.y, 0);
+    }
+
+    private Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation)
+    {
+        Vector3 direction = point - pivot;
+        direction = rotation * direction;
+        return pivot + direction;
     }
 }
